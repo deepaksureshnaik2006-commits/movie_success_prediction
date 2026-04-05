@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Movie Success Predictor</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    label {
+        font-weight: 600;
+    }
+    .detail-label {
+        font-weight: 700;
+    }
+</style>
+<script>
+if (typeof Chart === 'undefined') {
+    console.warn('Primary Chart.js CDN failed, loading fallback...');
+    const fallback = document.createElement('script');
+    fallback.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    fallback.onload = () => console.log('Fallback Chart.js loaded');
+    fallback.onerror = () => console.error('Fallback Chart.js load failed');
+    document.head.appendChild(fallback);
+}
+</script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white flex justify-center py-10">
+
+<div class="bg-gray-800 p-8 rounded-xl w-full max-w-5xl shadow-2xl border border-yellow-400">
+
+    <h1 class="text-3xl font-bold text-center mb-6 text-yellow-300">
+        🎬 Movie Success Prediction AI
+    </h1>
+
+    <div class="grid grid-cols-2 gap-4">
+
+        <div class="col-span-2">
+            <label class="text-lg text-gray-200">Movie Name</label>
+            <input id="movie_name" class="p-3 text-black rounded text-lg w-full">
+        </div>
+
+        <div>
+            <label class="text-lg text-gray-200">Director Name</label>
+            <input id="director" class="p-3 text-black rounded text-lg w-full">
+        </div>
+
+        <div>
+            <label class="text-lg text-gray-200">Genre</label>
+            <select id="genre" class="p-3 text-black rounded text-lg w-full">
+                <option>Action</option>
+                <option>Adventure</option>
+                <option>Animation</option>
+                <option>Biography</option>
+                <option>Comedy</option>
+                <option>Crime</option>
+                <option>Drama</option>
+                <option>Family</option>
+                <option>Fantasy</option>
+                <option>History</option>
+                <option>Horror</option>
+                <option>Music</option>
+                <option>Mystery</option>
+                <option>Romance</option>
+                <option>Sci-Fi</option>
+                <option>Sport</option>
+                <option>Thriller</option>
+                <option>War</option>
+                <option>Western</option>
+            </select>
+        </div>
+
+        <div class="col-span-2">
+            <label class="text-lg text-gray-200">Actors</label>
+            <textarea id="actors" class="p-3 text-black rounded text-lg w-full"></textarea>
+        </div>
+
+        <!-- 💰 NO CHANGE -->
+        <div>
+            <label class="text-lg text-gray-200">Budget</label>
+            <div class="relative bg-white rounded overflow-hidden">
+                <span class="absolute left-0 top-0 h-full w-7 text-gray-900 font-bold flex items-center justify-center">
+                    $
+                </span>
+                <input id="budget" type="number"
+                    class="pl-7 pr-3 py-2 text-black text-lg w-full outline-none border-0">
+            </div>
+        </div>
+
+        <div>
+            <label class="text-lg text-gray-200">Movie Poster</label>
+            <input type="file" id="poster" class="text-white">
+        </div>
+
+        <div>
+            <label class="text-lg text-gray-200">Hype Score: <span id="ratingValue">5</span>/10</label>
+            <input id="rating" type="range" min="0" max="10" step="0.1" value="5" class="w-full accent-yellow-400">
+        </div>
+
+        <div>
+            <label class="text-lg text-gray-200">Popularity: <span id="castValue">50</span>/100</label>
+            <input id="cast" type="range" min="0" max="100" value="50" class="w-full accent-yellow-400">
+        </div>
+
+    </div>
+
+    <button onclick="predict()" class="bg-yellow-400 text-black w-full p-3 rounded mt-6 hover:bg-yellow-500 text-lg font-semibold">
+        Predict Movie Success 🎬
+    </button>
+
+    <p id="warning" class="text-red-400 mt-3 text-lg"></p>
+
+    <!-- ✅ spacing after button -->
+    <div class="h-6"></div>
+
+    <div id="resultBox" class="hidden mt-8 overflow-visible">
+
+        <img id="posterPreview" class="w-48 mx-auto mb-4 hidden rounded shadow-lg">
+
+        <h2 id="resultBadge" class="text-3xl text-center font-bold text-white"></h2>
+        <p id="probText" class="text-center mb-4 text-lg text-white"></p>
+
+        <!-- ✅ spacing after result -->
+        <div class="h-4"></div>
+
+        <div class="grid grid-cols-2 gap-4 text-lg mb-4">
+
+            <div class="bg-gray-600 p-3 rounded">
+                <span class="detail-label">Movie:</span> <span id="d_name"></span>
+            </div>
+
+            <div class="bg-gray-600 p-3 rounded">
+                <span class="detail-label">Director:</span> <span id="d_director"></span>
+            </div>
+
+            <div class="bg-gray-600 p-3 rounded">
+                <span class="detail-label">Actors:</span> <span id="d_actors"></span>
+            </div>
+
+            <div class="bg-gray-600 p-3 rounded">
+                <span class="detail-label">Genre:</span> <span id="d_genre"></span>
+            </div>
+
+            <div class="bg-gray-600 p-3 rounded">
+                <span class="detail-label">Budget:</span> <span id="d_budget"></span>
+            </div>
+
+            <div class="bg-gray-600 p-3 rounded">
+                <span class="detail-label">Hype:</span> <span id="d_rating"></span>/10
+            </div>
+
+            <div class="bg-gray-600 p-3 rounded col-span-2">
+                <span class="detail-label">Popularity:</span> <span id="d_cast"></span>/100
+            </div>
+
+        </div>
+
+        <!-- ✅ spacing after details -->
+        <div class="h-6"></div>
+
+        <div class="mt-8">
+            <h3 class="text-xl font-extrabold mb-2 text-emerald-300">📈 Outcome Indicator</h3>
+            <div class="flex justify-between text-sm text-white/80 mb-1">
+                <span id="hitValue" class="font-semibold">Hit 0%</span>
+                <span id="flopValue" class="font-semibold">Flop 0%</span>
+            </div>
+            <div id="outcomeContainer" class="w-full h-12 bg-gray-600 rounded-full overflow-hidden border-2 border-gray-500 flex">
+                <div id="hitSegment" class="h-full bg-emerald-500"></div>
+                <div id="flopSegment" class="h-full bg-rose-500"></div>
+            </div>
+            <p class="text-center mt-2 text-lg">
+                Confidence: <span id="confidenceText"></span>
+            </p>
+        </div>
+
+        <!-- ✅ spacing after bar -->
+        <div class="h-6"></div>
+
+        <div class="grid grid-cols-2 gap-4 mt-6">
+            <div class="bg-white rounded p-10" style="min-height:330px; max-height:380px; overflow:visible;">
+                <h3 class="text-xl mb-2 text-blue-700 font-extrabold">Probability Distribution</h3>
+                <canvas id="chart" class="w-full" style="width:100%; height:100%;" width="300" height="280"></canvas>
+            </div>
+            <div class="bg-white rounded p-10" style="min-height:330px; max-height:380px; overflow:hidden;">
+                <h3 class="text-xl mb-2 text-blue-700 font-extrabold">Hit vs Flop</h3>
+                <canvas id="chart2" class="w-full" style="width:100%; height:100%;" width="300" height="280"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-gray-600 p-4 rounded mt-6 text-lg">
+            💡 <span id="insightText"></span>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
