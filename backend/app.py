@@ -33,7 +33,6 @@ def predict():
     # ✅ PURE ML + DL
     result, hit_prob = predict_movie(budget, genre, rating, cast)
 
-    hit_prob = max(0.05, min(float(hit_prob), 0.95))
     flop_prob = 1 - hit_prob
 
     hit_prob_pct = float(round(hit_prob * 100, 2))

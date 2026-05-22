@@ -45,7 +45,7 @@ async function predict() {
     try {
         const res = await fetch("http://127.0.0.1:5000/predict", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 movie_name, director, actors, budget,
                 genre,
@@ -55,6 +55,10 @@ async function predict() {
         });
 
         result = await res.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
 
     } catch (err) {
 
@@ -122,8 +126,8 @@ async function predict() {
     const confidenceValue = Math.max(hit, flop);
     const confidenceCategory =
         confidenceValue >= 80 ? "Strong" :
-        confidenceValue >= 60 ? "Medium" :
-        "Weak";
+            confidenceValue >= 60 ? "Medium" :
+                "Weak";
 
     const normalizedHit = Math.max(0, Math.min(100, hit));
     const normalizedFlop = Math.max(0, Math.min(100, flop));
@@ -222,7 +226,7 @@ async function predict() {
     }
 
     // 🔥 RANDOM INSIGHTS
-    let strongInsights = [
+    let strongPositiveInsights = [
         `🔥 "${movie_name}" is generating strong buzz and looks promising at the box office.`,
         `🎯 "${movie_name}" has good momentum and audience interest right now.`,
         `🚀 "${movie_name}" is likely to open strong with current hype levels.`,
@@ -230,30 +234,65 @@ async function predict() {
         `🎬 "${movie_name}" seems to be attracting solid audience attention.`
     ];
 
-    let mediumInsights = [
+    let mediumPositiveInsights = [
         `➖ "${movie_name}" has a balanced outlook with solid potential and room to grow.`,
         `🤝 "${movie_name}" is likely to perform steadily with decent audience interest.`,
-        `⚖️ "${movie_name}" has a neutral profile and could go either way depending on release timing.`,
+        `⚖️ "${movie_name}" has a neutral profile and could finish well with the right support.`,
         `🟡 "${movie_name}" shows fair demand and may find moderate success.`,
-        `📊 "${movie_name}" is positioned for a stable run with achievable box office returns.`
+        `📊 "${movie_name}" is positioned for a stable run if conditions stay favorable.`
     ];
 
-    let weakInsights = [
-        `⚠️ "${movie_name}" might struggle to gain strong audience traction.`,
-        `📉 "${movie_name}" doesn’t show strong momentum currently.`,
-        `😕 "${movie_name}" may find it difficult to perform at the box office.`,
-        `🚫 "${movie_name}" lacks strong hype and could have a slow start.`,
-        `🎭 "${movie_name}" might not connect well with a wide audience.`
+    let weakPositiveInsights = [
+        `⚠️ "${movie_name}" has some positive signs, but there is still uncertainty ahead.`,
+        `🙂 "${movie_name}" may perform as a modest hit if audience interest increases.`,
+        `🔍 "${movie_name}" has a slight chance to succeed, though the outlook is cautious.`,
+        `🟢 "${movie_name}" could see moderate returns, but the result is not guaranteed.`,
+        `🤔 "${movie_name}" shows potential, yet it may need strong marketing to fully take off.`
+    ];
+
+    let strongNegativeInsights = [
+        `🚨 "${movie_name}" looks set to underperform and could become a clear flop.`,
+        `📉 "${movie_name}" is showing strong negative momentum for box office returns.`,
+        `🛑 "${movie_name}" may struggle badly with the current outlook.`,
+        `⚡ "${movie_name}" appears unlikely to recover from the weak indicators.`,
+        `❌ "${movie_name}" is trending toward a disappointing release.`
+    ];
+
+    let mediumNegativeInsights = [
+        `➖ "${movie_name}" is leaning toward a flop unless things change significantly.`,
+        `🟠 "${movie_name}" has a weak outlook and could do poorly.`,
+        `📌 "${movie_name}" may underperform unless it gains unexpected interest.`,
+        `🔻 "${movie_name}" is more likely to struggle than succeed at the box office.`,
+        `⚠️ "${movie_name}" has a negative tilt and may face a disappointing run.`
+    ];
+
+    let weakNegativeInsights = [
+        `🤨 "${movie_name}" has weak signals and the outcome is uncertain, though it leans negative.`,
+        `😕 "${movie_name}" could still recover, but the current prediction is not favorable.`,
+        `🔍 "${movie_name}" is unlikely to be a hit, yet the final result is not guaranteed.`,
+        `⚠ "${movie_name}" may face challenges, and the outlook remains cautious.`,
+        `🟡 "${movie_name}" is showing downside risk, but there is still room for surprise.`
     ];
 
     let insight = "";
+    const isHit = finalResult === "HIT";
 
-    if (confidenceCategory === "Strong") {
-        insight = strongInsights[Math.floor(Math.random() * strongInsights.length)];
-    } else if (confidenceCategory === "Medium") {
-        insight = mediumInsights[Math.floor(Math.random() * mediumInsights.length)];
+    if (isHit) {
+        if (confidenceCategory === "Strong") {
+            insight = strongPositiveInsights[Math.floor(Math.random() * strongPositiveInsights.length)];
+        } else if (confidenceCategory === "Medium") {
+            insight = mediumPositiveInsights[Math.floor(Math.random() * mediumPositiveInsights.length)];
+        } else {
+            insight = weakPositiveInsights[Math.floor(Math.random() * weakPositiveInsights.length)];
+        }
     } else {
-        insight = weakInsights[Math.floor(Math.random() * weakInsights.length)];
+        if (confidenceCategory === "Strong") {
+            insight = strongNegativeInsights[Math.floor(Math.random() * strongNegativeInsights.length)];
+        } else if (confidenceCategory === "Medium") {
+            insight = mediumNegativeInsights[Math.floor(Math.random() * mediumNegativeInsights.length)];
+        } else {
+            insight = weakNegativeInsights[Math.floor(Math.random() * weakNegativeInsights.length)];
+        }
     }
 
     document.getElementById("insightText").innerText = insight;

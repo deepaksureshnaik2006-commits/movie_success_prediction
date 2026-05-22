@@ -5,12 +5,12 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from tensorflow.keras.models import Sequential  # type: ignore
-from tensorflow.keras.layers import Dense  # type: ignore
+from tensorflow.keras.layers import Dense, Input  # type: ignore
 
 # Load dataset
 df = pd.read_csv("movies.csv")
 
-X = df[['budget','genre','rating_imdb','cast_popularity']]
+X = df[['budget','genre','hype_score','cast_popularity']]
 y = df['hit']
 
 # Encode genre (ignore unknown categories at inference)
@@ -19,7 +19,7 @@ genre_encoded = encoder.fit_transform(X[['genre']]).toarray()
 
 # Combine features
 import numpy as np
-X_numeric = X[['budget','rating_imdb','cast_popularity']].values
+X_numeric = X[['budget','hype_score','cast_popularity']].values
 X_final = np.hstack((X_numeric, genre_encoded))
 
 # Scale
@@ -43,7 +43,8 @@ pickle.dump(encoder,open("models/encoder.pkl","wb"))
 
 # ---------------- DL MODEL ----------------
 model = Sequential()
-model.add(Dense(64,activation='relu',input_shape=(X_train.shape[1],)))
+model.add(Input(shape=(X_train.shape[1],)))
+model.add(Dense(64,activation='relu'))
 model.add(Dense(32,activation='relu'))
 model.add(Dense(1,activation='sigmoid'))
 

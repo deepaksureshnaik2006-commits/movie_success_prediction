@@ -1,13 +1,31 @@
+import pickle
+import numpy as np
+import os
+import warnings
+
+# Suppress TensorFlow C++ backend logs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+from keras.models import load_model
+
+# Suppress scikit-learn UserWarnings about feature names
+warnings.filterwarnings("ignore", category=UserWarning)
+
+# Get the directory of the current file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Load models once at startup
+RF_MODEL_PATH = os.path.join(BASE_DIR, "models", "rf_model.pkl")
+SCALER_PATH = os.path.join(BASE_DIR, "models", "scaler.pkl")
+ENCODER_PATH = os.path.join(BASE_DIR, "models", "encoder.pkl")
+DL_MODEL_PATH = os.path.join(BASE_DIR, "models", "dl_model.h5")
+
+rf = pickle.load(open(RF_MODEL_PATH, "rb"))
+scaler = pickle.load(open(SCALER_PATH, "rb"))
+encoder = pickle.load(open(ENCODER_PATH, "rb"))
+dl_model = load_model(DL_MODEL_PATH)
+
 def predict_movie(budget, genre, rating, cast):
-
-    import pickle
-    import numpy as np
-    from keras.models import load_model
-
-    rf = pickle.load(open("models/rf_model.pkl","rb"))
-    scaler = pickle.load(open("models/scaler.pkl","rb"))
-    encoder = pickle.load(open("models/encoder.pkl","rb"))
-    dl_model = load_model("models/dl_model.h5")
 
     budget = float(budget)
     rating = float(rating)
