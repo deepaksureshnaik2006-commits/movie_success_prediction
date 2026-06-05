@@ -1,3 +1,4 @@
+# Movie Success Prediction - Flask Backend
 from flask import Flask, request, jsonify
 from predict import predict_movie
 from flask_cors import CORS
