@@ -1,10 +1,6 @@
 let uploadedPosterURL = "";
 
-// 🔧 AUTO-DETECT: Uses localhost for demo, Render URL when live on Netlify
-const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-const BACKEND_URL = isLocal
-    ? "http://127.0.0.1:5000"
-    : "https://movie-success-prediction-yunp.onrender.com"; // ✅ Live Render URL
+const BACKEND_URL = "http://127.0.0.1:5000";
 
 // SLIDERS
 const rating = document.getElementById("rating");
